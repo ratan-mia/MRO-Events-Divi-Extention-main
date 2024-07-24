@@ -1,58 +1,144 @@
 <?php
-/*
-Plugin Name: MRO Events Divi Extention
-Plugin URI:  https://shorifullislamratan.me/projects/mro-events
-Description: A simple Divi Extention to show custom events posts
-Version:     1.0.0
-Author:      Ratan Mia
-Author URI:  https://shorifullislamratan.me
-License:     GPL2
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: mro-mro-events-divi-extention
-Domain Path: /languages
+if (!defined('ABSPATH')) {
+    exit;
+}
 
-Mro Events Divi Extention is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-any later version.
+class Custom_Post_Filter_Module extends ET_Builder_Module
+{
 
-Mro Events Divi Extention is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+    public $slug       = 'custom_post_filter';
+    public $vb_support = 'on';
 
-You should have received a copy of the GNU General Public License
-along with Mro Events Divi Extention. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
-*/
-
-
-if (!function_exists('mro_initialize_extension')) :
-    /**
-     * Creates the extension's main class instance.
-     *
-     * @since 1.0.0
-     */
-
-    // add javascript and css
-    function mro_events_divi_extention_scripts()
+    public function init()
     {
-        wp_enqueue_style('mro-events-divi-extention-style', plugin_dir_url(__FILE__) . '/styles/swiper.css', array(), '1.0.0', 'all');
-        wp_enqueue_script('mro-events-swiper', plugin_dir_url(__FILE__) . '/scripts/swiper-bundle.min.js', array('jquery'), '1.0.0', true);
-        wp_enqueue_style('mro-event-carousel', plugin_dir_url(__FILE__) . '/includes/modules/BlogCarousel/style.css', array(), '1.0.0', 'all');
-        wp_enqueue_script('mro-event-carousel', plugin_dir_url(__FILE__) . '/includes/modules/BlogCarousel/frontend.min.js', array('mro-events-swiper'), '1.0.0', true);
+        $this->name = esc_html__('Custom Post Filter', 'et_builder');
     }
-    add_action('wp_enqueue_scripts', 'mro_events_divi_extention_scripts');
 
-
-    function mro_initialize_extension()
+    public function get_fields()
     {
-        require_once plugin_dir_path(__FILE__) . 'includes/MroEventsDiviExtention.php';
+        return array();
     }
-    add_action('divi_extensions_init', 'mro_initialize_extension');
-endif;
 
+    public function render($attrs, $content = null, $render_slug)
+    {
+        ob_start();
+?>
+        <form method="GET" id="filter-form" class="d-flex align-items-center mb-4">
+            <div class="form-group mr-2 mb-2">
+                <label for="author" class="mr-2">Author:</label>
+                <select name="author" id="author" class="form-control">
+                    <option value="">Select Author</option>
+                    <?php
+                    $authors = get_users(array('who' => 'authors'));
+                    foreach ($authors as $author) {
+                        echo '<option value="' . $author->ID . '">' . $author->display_name . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
 
-// Enqueue scripts
+            <div class="form-group mr-2 mb-2">
+                <label for="category" class="mr-2">Category:</label>
+                <select name="category" id="category" class="form-control">
+                    <option value="">Select Category</option>
+                    <?php
+                    $categories = get_categories();
+                    foreach ($categories as $category) {
+                        echo '<option value="' . $category->term_id . '">' . $category->name . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div class="form-group mr-2 mb-2">
+                <label for="tags" class="mr-2">Tags:</label>
+                <select name="tags" id="tags" class="form-control">
+                    <option value="">Select Tags</option>
+                    <?php
+                    $tags = get_tags(array(
+                        'hide_empty' => false
+                    ));
+
+                    foreach ($tags as $tag) {
+                        echo '<option value="' . $tag->term_id . '">' . $tag->name . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div class="form-group mr-2 mb-2">
+                <label for="search" class="mr-2">Search:</label>
+                <input type="text" name="search" id="search" class="form-control" placeholder="Search...">
+
+            </div>
+            <button type="submit" class="btn btn-primary mb-2">Search</button>
+        </form>
+
+        <div id="response">
+            <?php
+            $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+            $args = array(
+                'post_type' => 'post',
+                'posts_per_page' => 6,
+                'paged' => $paged,
+            );
+
+            $query = new WP_Query($args);
+            if ($query->have_posts()) :
+                echo '<div class="row">';
+                while ($query->have_posts()) : $query->the_post();
+            ?>
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><?php the_title(); ?></h5>
+                                <p class="card-text"><?php echo wp_kses_post(get_the_excerpt()); ?></p>
+                                <a href="<?php the_permalink(); ?>" class="btn btn-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                <?php
+                endwhile;
+                echo '</div>';
+                ?>
+                <div class="pagination">
+                    <?php
+                    echo paginate_links(array(
+                        'total' => $query->max_num_pages,
+                        'current' => $paged,
+                        'prev_text' => __('« Prev'),
+                        'next_text' => __('Next »'),
+                        'format' => '?paged=%#%',
+                    ));
+                    ?>
+                </div>
+            <?php
+            else :
+                echo '<p>No posts found</p>';
+            endif;
+
+            wp_reset_postdata();
+            ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+}
+
+new Custom_Post_Filter_Module;
+
+### 2. Register the Module
+
+function custom_post_filter_divi_module()
+{
+    if (class_exists('ET_Builder_Module')) {
+        include_once(plugin_dir_path(__FILE__) . 'custom-post-filter-module.php');
+        new Custom_Post_Filter_Module;
+    }
+}
+add_action('et_builder_ready', 'custom_post_filter_divi_module');
+
+### 3. Enqueue Scripts and Styles
 
 function enqueue_custom_scripts()
 {
@@ -67,9 +153,7 @@ function enqueue_custom_scripts()
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
 
-
-
-// Add shortcode to filter the posts
+### 4. Add AJAX Actions
 
 function filter_posts()
 {
@@ -95,11 +179,10 @@ function filter_posts()
     if ($query->have_posts()) :
         echo '<div class="row">';
         while ($query->have_posts()) : $query->the_post();
-?>
+        ?>
             <div class="col-md-4 mb-4">
                 <div class="card">
                     <div class="card-body">
-                        <img src="<?php the_post_thumbnail('medium') ?>" class="card-img-top" alt="<?php the_title(); ?>>
                         <h5 class=" card-title"><?php the_title(); ?></h5>
                         <p class="card-text"><?php the_excerpt(); ?></p>
                         <a href="<?php the_permalink(); ?>" class="btn btn-primary">Read More</a>
@@ -132,13 +215,43 @@ function filter_posts()
 add_action('wp_ajax_filter_posts', 'filter_posts');
 add_action('wp_ajax_nopriv_filter_posts', 'filter_posts');
 
+### 5. Add Inline AJAX Filter Script
+
+function inline_ajax_filter_script()
+{
+    ?>
+    <script type="text/javascript">
+        jQuery(function($) {
+            $('#filter-form').on('submit', function(e) {
+                e.preventDefault();
+
+                var filter = $('#filter-form');
+                $.ajax({
+                    url: afp_vars.afp_ajax_url,
+                    type: 'post',
+                    data: filter.serialize() + '&action=filter_posts&afp_nonce=' + afp_vars.afp_nonce,
+                    beforeSend: function() {
+                        $('#response').html('Loading...');
+                    },
+                    success: function(response) {
+                        $('#response').html(response);
+                    }
+                });
+            });
+        });
+    </script>
+<?php
+}
+add_action('wp_footer', 'inline_ajax_filter_script');
 
 
+
+// Shortcode for the post filter
 
 function custom_post_filter_shortcode()
 {
     ob_start();
-    ?>
+?>
     <form method="GET" id="filter-form" class="d-flex align-items-center mb-4">
         <div class="form-group mr-2 mb-2">
             <label for="author" class="mr-2">Author:</label>
@@ -188,8 +301,6 @@ function custom_post_filter_shortcode()
 
         </div>
         <button type="submit" class="btn btn-primary mb-2">Search</button>
-
-
     </form>
 
     <div id="response">
@@ -238,53 +349,8 @@ function custom_post_filter_shortcode()
         wp_reset_postdata();
         ?>
     </div>
-
 <?php
     return ob_get_clean();
 }
 
 add_shortcode('custom_post_filter', 'custom_post_filter_shortcode');
-
-
-
-// Add AJAX actions to filter the post
-
-function inline_ajax_filter_script()
-{
-?>
-    <script type="text/javascript">
-        jQuery(function($) {
-            $('#filter-form').on('submit', function(e) {
-                e.preventDefault();
-
-                var filter = $('#filter-form');
-                $.ajax({
-                    url: afp_vars.afp_ajax_url,
-                    type: 'post',
-                    data: filter.serialize() + '&action=filter_posts&afp_nonce=' + afp_vars.afp_nonce,
-                    beforeSend: function() {
-                        $('#response').html('Loading...');
-                    },
-                    success: function(response) {
-                        $('#response').html(response);
-                    }
-                });
-            });
-        });
-    </script>
-<?php
-}
-add_action('wp_footer', 'inline_ajax_filter_script');
-
-
-
-
-// Register the custom module
-
-function register_custom_post_filter_module()
-{
-    if (class_exists('ET_Builder_Module')) {
-        include_once get_template_directory() . '/custom-post-filter.php';
-    }
-}
-add_action('et_builder_ready', 'register_custom_post_filter_module');
