@@ -286,7 +286,6 @@ function custom_divi_module()
 {
     if (class_exists('ET_Builder_Module')) {
         include_once plugin_dir_path(__FILE__) . 'class-AjaxPostFilter.php';
-        // include_once plugin_dir_path(__FILE__) . 'class-MRO-AjaxPostFilter.php';
     }
 }
 add_action('et_builder_ready', 'custom_divi_module');
