@@ -3,7 +3,7 @@
 Plugin Name: MRO Events Divi Extention
 Plugin URI:  https://shorifullislamratan.me/projects/mro-events
 Description: A simple Divi Extention to show custom events posts
-Version:     1.0.0
+Version:     1.3.0
 Author:      Ratan Mia
 Author URI:  https://shorifullislamratan.me
 License:     GPL2
@@ -37,7 +37,7 @@ if (!function_exists('mro_initialize_extension')) :
     function mro_events_divi_extention_scripts()
     {
         wp_enqueue_style('mro-events-divi-extention-style', plugin_dir_url(__FILE__) . '/styles/swiper.css', array(), '1.0.0', 'all');
-        wp_enqueue_style('mro-events-custom-style', plugin_dir_url(__FILE__) . '/styles/custom-style.css', array(), '1.0.0', 'all');
+
         wp_enqueue_script('mro-events-swiper', plugin_dir_url(__FILE__) . '/scripts/swiper-bundle.min.js', array('jquery'), '1.0.0', true);
         wp_enqueue_style('mro-event-carousel', plugin_dir_url(__FILE__) . '/includes/modules/BlogCarousel/style.css', array(), '1.0.0', 'all');
         wp_enqueue_script('mro-event-carousel', plugin_dir_url(__FILE__) . '/includes/modules/BlogCarousel/frontend.min.js', array('mro-events-swiper'), '1.0.0', true);
@@ -58,6 +58,7 @@ endif;
 function enqueue_custom_scripts()
 {
     wp_enqueue_style('bootstrap-css', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+    wp_enqueue_style('mro-events-custom-style', plugin_dir_url(__FILE__) . '/styles/custom-style.css', array(), '1.0.0', 'all');
     wp_enqueue_script('bootstrap-js', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js', array('jquery'), null, true);
     wp_enqueue_script('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js', array('jquery'), null, true);
     wp_enqueue_script('ajax-filter-posts', get_template_directory_uri() . '/js/ajax-filter-posts.js', array('jquery'), null, true);
@@ -147,20 +148,6 @@ function custom_post_filter_shortcode()
         <div class="row">
             <div class="col-md-3">
                 <div class="form-group mr-2 mb-2">
-                    <label for="author" class="mr-2">Author:</label>
-                    <select name="author" id="author" class="form-control">
-                        <option value="">Select Author</option>
-                        <?php
-                        $authors = get_users(array('who' => 'authors'));
-                        foreach ($authors as $author) {
-                            echo '<option value="' . $author->ID . '">' . $author->display_name . '</option>';
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group mr-2 mb-2">
                     <label for="category" class="mr-2">Category:</label>
                     <select name="category" id="category" class="form-control">
                         <option value="">Select Category</option>
@@ -168,6 +155,20 @@ function custom_post_filter_shortcode()
                         $categories = get_categories();
                         foreach ($categories as $category) {
                             echo '<option value="' . $category->term_id . '">' . $category->name . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group mr-2 mb-2">
+                    <label for="author" class="mr-2">Author:</label>
+                    <select name="author" id="author" class="form-control">
+                        <option value="">Select Author</option>
+                        <?php
+                        $authors = get_users(array('who' => 'authors'));
+                        foreach ($authors as $author) {
+                            echo '<option value="' . $author->ID . '">' . $author->display_name . '</option>';
                         }
                         ?>
                     </select>
@@ -194,7 +195,7 @@ function custom_post_filter_shortcode()
                 <div class="form-group position-relative">
                     <label for="search" class="mr-2">Search:</label>
                     <input type="text" name="search" id="search" class="form-control" placeholder="Search...">
-                    <button type="submit" class="btn position-absolute" style="right: 0; top: 0; height: 100%; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                    <button type="submit" class="btn position-absolute">
                         <i class="fa fa-search"></i>
                     </button>
                 </div>
@@ -220,9 +221,11 @@ function custom_post_filter_shortcode()
                 <div class="col-md-4 mb-4">
                     <div class="card">
                         <div class="card-body">
+
+                            <img src="<?php echo get_the_post_thumbnail_url(); ?>" class="card-img-top" alt="<?php the_title(); ?>">
                             <h5 class="card-title"><?php the_title(); ?></h5>
                             <p class="card-text"><?php echo wp_kses_post(get_the_excerpt()); ?></p>
-                            <a href="<?php the_permalink(); ?>" class="btn btn-primary">Read More</a>
+                            <a href="<?php the_permalink(); ?>" class="btn readmore-btn">Read More</a>
                         </div>
                     </div>
                 </div>

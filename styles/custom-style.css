@@ -5,7 +5,7 @@
 .form-group .btn {
   position: absolute;
   right: 0;
-  top: 0;
+  top: 16px;
   height: 100%;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
@@ -17,4 +17,54 @@
 
 .form-group input[type="text"] {
   padding-right: 40px; /* Adjust padding to avoid text overlapping with the button */
+}
+
+.readmore-btn {
+  color: #333;
+}
+
+/* Container for pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+/* Pagination links */
+.pagination a,
+.pagination span {
+  color: #0073aa;
+  padding: 5px 10px;
+  margin: 0 5px;
+  text-decoration: none;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Hover state for links */
+.pagination a:hover {
+  background-color: #0073aa;
+  color: #fff;
+}
+
+/* Current page number */
+.pagination .current {
+  background-color: #0073aa;
+  color: #fff;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+/* Disabled state for prev/next links */
+.pagination .prev.disabled,
+.pagination .next.disabled {
+  color: #ccc;
+  pointer-events: none;
+}
+
+/* Add custom styles for prev and next text */
+.pagination .prev_text,
+.pagination .next_text {
+  font-weight: bold;
 }
