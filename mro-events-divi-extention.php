@@ -37,6 +37,7 @@ if (!function_exists('mro_initialize_extension')) :
     function mro_events_divi_extention_scripts()
     {
         wp_enqueue_style('mro-events-divi-extention-style', plugin_dir_url(__FILE__) . '/styles/swiper.css', array(), '1.0.0', 'all');
+        wp_enqueue_style('mro-events-custom-style', plugin_dir_url(__FILE__) . '/styles/custom-style.css', array(), '1.0.0', 'all');
         wp_enqueue_script('mro-events-swiper', plugin_dir_url(__FILE__) . '/scripts/swiper-bundle.min.js', array('jquery'), '1.0.0', true);
         wp_enqueue_style('mro-event-carousel', plugin_dir_url(__FILE__) . '/includes/modules/BlogCarousel/style.css', array(), '1.0.0', 'all');
         wp_enqueue_script('mro-event-carousel', plugin_dir_url(__FILE__) . '/includes/modules/BlogCarousel/frontend.min.js', array('mro-events-swiper'), '1.0.0', true);
@@ -58,6 +59,7 @@ function enqueue_custom_scripts()
 {
     wp_enqueue_style('bootstrap-css', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
     wp_enqueue_script('bootstrap-js', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js', array('jquery'), null, true);
+    wp_enqueue_script('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js', array('jquery'), null, true);
     wp_enqueue_script('ajax-filter-posts', get_template_directory_uri() . '/js/ajax-filter-posts.js', array('jquery'), null, true);
 
     wp_localize_script('ajax-filter-posts', 'afp_vars', array(
@@ -140,56 +142,65 @@ function custom_post_filter_shortcode()
     ob_start();
     ?>
     <form method="GET" id="filter-form" class="d-flex align-items-center mb-4">
-        <div class="form-group mr-2 mb-2">
-            <label for="author" class="mr-2">Author:</label>
-            <select name="author" id="author" class="form-control">
-                <option value="">Select Author</option>
-                <?php
-                $authors = get_users(array('who' => 'authors'));
-                foreach ($authors as $author) {
-                    echo '<option value="' . $author->ID . '">' . $author->display_name . '</option>';
-                }
-                ?>
-            </select>
+
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group mr-2 mb-2">
+                    <label for="author" class="mr-2">Author:</label>
+                    <select name="author" id="author" class="form-control">
+                        <option value="">Select Author</option>
+                        <?php
+                        $authors = get_users(array('who' => 'authors'));
+                        foreach ($authors as $author) {
+                            echo '<option value="' . $author->ID . '">' . $author->display_name . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group mr-2 mb-2">
+                    <label for="category" class="mr-2">Category:</label>
+                    <select name="category" id="category" class="form-control">
+                        <option value="">Select Category</option>
+                        <?php
+                        $categories = get_categories();
+                        foreach ($categories as $category) {
+                            echo '<option value="' . $category->term_id . '">' . $category->name . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group mr-2 mb-2">
+                    <label for="tags" class="mr-2">Tags:</label>
+                    <select name="tags" id="tags" class="form-control">
+                        <option value="">Select Tags</option>
+                        <?php
+                        $tags = get_tags(array(
+                            'hide_empty' => false
+                        ));
+
+                        foreach ($tags as $tag) {
+                            echo '<option value="' . $tag->term_id . '">' . $tag->name . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group position-relative">
+                    <label for="search" class="mr-2">Search:</label>
+                    <input type="text" name="search" id="search" class="form-control" placeholder="Search...">
+                    <button type="submit" class="btn position-absolute" style="right: 0; top: 0; height: 100%; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
         </div>
-
-        <div class="form-group mr-2 mb-2">
-            <label for="category" class="mr-2">Category:</label>
-            <select name="category" id="category" class="form-control">
-                <option value="">Select Category</option>
-                <?php
-                $categories = get_categories();
-                foreach ($categories as $category) {
-                    echo '<option value="' . $category->term_id . '">' . $category->name . '</option>';
-                }
-                ?>
-            </select>
-        </div>
-
-        <div class="form-group mr-2 mb-2">
-            <label for="tags" class="mr-2">Tags:</label>
-            <select name="tags" id="tags" class="form-control">
-                <option value="">Select Tags</option>
-                <?php
-                $tags = get_tags(array(
-                    'hide_empty' => false
-                ));
-
-                foreach ($tags as $tag) {
-                    echo '<option value="' . $tag->term_id . '">' . $tag->name . '</option>';
-                }
-                ?>
-            </select>
-        </div>
-
-        <div class="form-group mr-2 mb-2">
-            <label for="search" class="mr-2">Search:</label>
-            <input type="text" name="search" id="search" class="form-control" placeholder="Search...">
-
-        </div>
-        <button type="submit" class="btn btn-primary mb-2">Search</button>
-
-
     </form>
 
     <div id="response">

@@ -140,56 +140,63 @@ function custom_post_filter_shortcode()
     ob_start();
     ?>
     <form method="GET" id="filter-form" class="d-flex align-items-center mb-4">
-        <div class="form-group mr-2 mb-2">
-            <label for="author" class="mr-2">Author:</label>
-            <select name="author" id="author" class="form-control">
-                <option value="">Select Author</option>
-                <?php
-                $authors = get_users(array('who' => 'authors'));
-                foreach ($authors as $author) {
-                    echo '<option value="' . $author->ID . '">' . $author->display_name . '</option>';
-                }
-                ?>
-            </select>
+
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group mr-2 mb-2">
+                    <label for="author" class="mr-2">Author:</label>
+                    <select name="author" id="author" class="form-control">
+                        <option value="">Select Author</option>
+                        <?php
+                        $authors = get_users(array('who' => 'authors'));
+                        foreach ($authors as $author) {
+                            echo '<option value="' . $author->ID . '">' . $author->display_name . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group mr-2 mb-2">
+                    <label for="category" class="mr-2">Category:</label>
+                    <select name="category" id="category" class="form-control">
+                        <option value="">Select Category</option>
+                        <?php
+                        $categories = get_categories();
+                        foreach ($categories as $category) {
+                            echo '<option value="' . $category->term_id . '">' . $category->name . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group mr-2 mb-2">
+                    <label for="tags" class="mr-2">Tags:</label>
+                    <select name="tags" id="tags" class="form-control">
+                        <option value="">Select Tags</option>
+                        <?php
+                        $tags = get_tags(array(
+                            'hide_empty' => false
+                        ));
+
+                        foreach ($tags as $tag) {
+                            echo '<option value="' . $tag->term_id . '">' . $tag->name . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group mr-2 mb-2">
+                    <label for="search" class="mr-2">Search:</label>
+                    <input type="text" name="search" id="search" class="form-control" placeholder="Search...">
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Search</button>
+
+            </div>
         </div>
-
-        <div class="form-group mr-2 mb-2">
-            <label for="category" class="mr-2">Category:</label>
-            <select name="category" id="category" class="form-control">
-                <option value="">Select Category</option>
-                <?php
-                $categories = get_categories();
-                foreach ($categories as $category) {
-                    echo '<option value="' . $category->term_id . '">' . $category->name . '</option>';
-                }
-                ?>
-            </select>
-        </div>
-
-        <div class="form-group mr-2 mb-2">
-            <label for="tags" class="mr-2">Tags:</label>
-            <select name="tags" id="tags" class="form-control">
-                <option value="">Select Tags</option>
-                <?php
-                $tags = get_tags(array(
-                    'hide_empty' => false
-                ));
-
-                foreach ($tags as $tag) {
-                    echo '<option value="' . $tag->term_id . '">' . $tag->name . '</option>';
-                }
-                ?>
-            </select>
-        </div>
-
-        <div class="form-group mr-2 mb-2">
-            <label for="search" class="mr-2">Search:</label>
-            <input type="text" name="search" id="search" class="form-control" placeholder="Search...">
-
-        </div>
-        <button type="submit" class="btn btn-primary mb-2">Search</button>
-
-
     </form>
 
     <div id="response">

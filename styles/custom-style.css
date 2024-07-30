@@ -1,0 +1,20 @@
+.form-group {
+  position: relative;
+}
+
+.form-group .btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-group input[type="text"] {
+  padding-right: 40px; /* Adjust padding to avoid text overlapping with the button */
+}
