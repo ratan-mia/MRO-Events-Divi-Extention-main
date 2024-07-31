@@ -142,65 +142,67 @@ function custom_post_filter_shortcode()
 {
     ob_start();
     ?>
+
     <form method="GET" id="filter-form" class="d-flex align-items-center mb-4">
 
+        <div class="container-fluid mro-post-filter-form">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group mb-2">
+                        <label for="category" class="mr-2">Browse by Category</label>
+                        <select name="category" id="category" class="form-control">
+                            <option value="">Select Category</option>
+                            <?php
+                            $categories = get_categories();
+                            foreach ($categories as $category) {
+                                echo '<option value="' . $category->term_id . '">' . $category->name . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group  mb-2">
+                        <label for="author" class="mr-2">Browse By Author</label>
+                        <select name="author" id="author" class="form-control">
+                            <option value="">Select Author</option>
+                            <?php
+                            $authors = get_users(array('who' => 'authors'));
+                            foreach ($authors as $author) {
+                                echo '<option value="' . $author->ID . '">' . $author->display_name . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-2">
+                        <label for="tags" class="mr-2">Browse By Tags</label>
+                        <select name="tags" id="tags" class="form-control">
+                            <option value="">Select Tags</option>
+                            <?php
+                            $tags = get_tags(array(
+                                'hide_empty' => false
+                            ));
 
-        <div class="row">
-            <div class="col-md-3">
-                <div class="form-group mr-2 mb-2">
-                    <label for="category" class="mr-2">Category:</label>
-                    <select name="category" id="category" class="form-control">
-                        <option value="">Select Category</option>
-                        <?php
-                        $categories = get_categories();
-                        foreach ($categories as $category) {
-                            echo '<option value="' . $category->term_id . '">' . $category->name . '</option>';
-                        }
-                        ?>
-                    </select>
+                            foreach ($tags as $tag) {
+                                echo '<option value="' . $tag->term_id . '">' . $tag->name . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group mr-2 mb-2">
-                    <label for="author" class="mr-2">Author:</label>
-                    <select name="author" id="author" class="form-control">
-                        <option value="">Select Author</option>
-                        <?php
-                        $authors = get_users(array('who' => 'authors'));
-                        foreach ($authors as $author) {
-                            echo '<option value="' . $author->ID . '">' . $author->display_name . '</option>';
-                        }
-                        ?>
-                    </select>
+                <div class="col-md-3">
+                    <div class="form-group position-relative">
+                        <label for="search" class="mr-2">Search:</label>
+                        <input type="text" name="search" id="search" class="form-control" placeholder="Search...">
+                        <button type="submit" class="btn position-absolute">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group mr-2 mb-2">
-                    <label for="tags" class="mr-2">Tags:</label>
-                    <select name="tags" id="tags" class="form-control">
-                        <option value="">Select Tags</option>
-                        <?php
-                        $tags = get_tags(array(
-                            'hide_empty' => false
-                        ));
 
-                        foreach ($tags as $tag) {
-                            echo '<option value="' . $tag->term_id . '">' . $tag->name . '</option>';
-                        }
-                        ?>
-                    </select>
-                </div>
             </div>
-            <div class="col-md-3">
-                <div class="form-group position-relative">
-                    <label for="search" class="mr-2">Search:</label>
-                    <input type="text" name="search" id="search" class="form-control" placeholder="Search...">
-                    <button type="submit" class="btn position-absolute">
-                        <i class="fa fa-search"></i>
-                    </button>
-                </div>
-            </div>
-
         </div>
     </form>
 
@@ -222,7 +224,21 @@ function custom_post_filter_shortcode()
                     <div class="card">
                         <div class="card-body">
 
-                            <img src="<?php echo get_the_post_thumbnail_url(); ?>" class="card-img-top" alt="<?php the_title(); ?>">
+                            <?php
+                            if (has_post_thumbnail()) {
+                                the_post_thumbnail();
+                            }
+
+                            $categories = get_the_category();
+                            if (!empty($categories)) {
+                                echo '<div class="post-categories">';
+                                foreach ($categories as $category) {
+                                    echo '<a href="' . esc_url(get_category_link($category->term_id)) . '" title="' . esc_attr($category->name) . '">' . esc_html($category->name) . '</a> ';
+                                }
+                                echo '</div>';
+                            }
+                            ?>
+
                             <h5 class="card-title"><?php the_title(); ?></h5>
                             <p class="card-text"><?php echo wp_kses_post(get_the_excerpt()); ?></p>
                             <a href="<?php the_permalink(); ?>" class="btn readmore-btn">Read More</a>
