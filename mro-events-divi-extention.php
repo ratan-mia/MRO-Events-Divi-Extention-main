@@ -98,9 +98,29 @@ function filter_posts()
             <div class="col-md-4 mb-4">
                 <div class="card">
                     <div class="card-body">
+                        <?php
+                        if (has_post_thumbnail()) { ?>
+                            <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('full', ['class' => 'img-fluid']); ?></a>
+                        <?php } else { ?>
+                            <a href="<?php the_permalink(); ?>"><img src="<?php echo plugin_dir_url(__FILE__); ?>/images/no-image.jpg" alt="<?php the_title_attribute(); ?>" class="img-fluid"></a>
+                        <?php }
+
+                        $categories = get_the_category();
+                        if (!empty($categories)) {
+                            echo '<div class="post-categories">';
+                            foreach ($categories as $category) {
+                                echo '<a href="' . esc_url(get_category_link($category->term_id)) . '" title="' . esc_attr($category->name) . '">' . esc_html($category->name) . '</a> ';
+                            }
+                            echo '</div>';
+                        }
+                        ?>
                         <h5 class="card-title"><?php the_title(); ?></h5>
-                        <p class="card-text"><?php the_excerpt(); ?></p>
-                        <a href="<?php the_permalink(); ?>" class="btn btn-primary">Read More</a>
+                        <p class="card-text"><?php echo wp_kses_post(wp_trim_words(get_the_excerpt(), 160)); ?></p>
+                        <a href="<?php the_permalink(); ?>" class="btn readmore-btn">Read More
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -219,7 +239,7 @@ function custom_post_filter_shortcode()
                             if (has_post_thumbnail()) { ?>
                                 <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('full', ['class' => 'img-fluid']); ?></a>
                             <?php } else { ?>
-                                <a href="<?php the_permalink(); ?>"><img src="<?php echo get_stylesheet_directory_uri(); ?>/images/no-image.jpg" alt="<?php the_title_attribute(); ?>" class="img-fluid"></a>
+                                <a href="<?php the_permalink(); ?>"><img src="<?php echo plugin_dir_url(__FILE__); ?>/images/no-image.jpg" alt="<?php the_title_attribute(); ?>" class="img-fluid"></a>
                             <?php }
 
                             $categories = get_the_category();
@@ -232,7 +252,7 @@ function custom_post_filter_shortcode()
                             }
                             ?>
                             <h5 class="card-title"><?php the_title(); ?></h5>
-                            <p class="card-text"><?php echo wp_kses_post(get_the_excerpt()); ?></p>
+                            <p class="card-text"><?php echo wp_kses_post(wp_trim_words(get_the_excerpt(), 160)); ?></p>
                             <a href="<?php the_permalink(); ?>" class="btn readmore-btn">Read More
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
