@@ -70,8 +70,6 @@ function enqueue_custom_scripts()
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
 
-
-
 function filter_posts()
 {
     check_ajax_referer('afp_nonce', 'afp_nonce');
@@ -118,6 +116,7 @@ function filter_posts()
                 'prev_text' => __('« Prev'),
                 'next_text' => __('Next »'),
                 'format' => '?paged=%#%',
+                'add_args' => false,
             ));
             ?>
         </div>
@@ -131,12 +130,6 @@ function filter_posts()
 }
 add_action('wp_ajax_filter_posts', 'filter_posts');
 add_action('wp_ajax_nopriv_filter_posts', 'filter_posts');
-
-
-
-
-
-
 
 function custom_post_filter_shortcode()
 {
@@ -162,7 +155,7 @@ function custom_post_filter_shortcode()
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="form-group  mb-2">
+                    <div class="form-group mb-2">
                         <label for="author" class="mr-2">Browse By Author</label>
                         <select name="author" id="author" class="form-control">
                             <option value="">Select Author</option>
@@ -201,7 +194,6 @@ function custom_post_filter_shortcode()
                         </button>
                     </div>
                 </div>
-
             </div>
         </div>
     </form>
@@ -223,11 +215,12 @@ function custom_post_filter_shortcode()
                 <div class="col-md-4 mb-4">
                     <div class="card">
                         <div class="card-body">
-
                             <?php
-                            if (has_post_thumbnail()) {
-                                the_post_thumbnail();
-                            }
+                            if (has_post_thumbnail()) { ?>
+                                <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('full', ['class' => 'img-fluid']); ?></a>
+                            <?php } else { ?>
+                                <a href="<?php the_permalink(); ?>"><img src="<?php echo get_stylesheet_directory_uri(); ?>/images/no-image.jpg" alt="<?php the_title_attribute(); ?>" class="img-fluid"></a>
+                            <?php }
 
                             $categories = get_the_category();
                             if (!empty($categories)) {
@@ -238,10 +231,13 @@ function custom_post_filter_shortcode()
                                 echo '</div>';
                             }
                             ?>
-
                             <h5 class="card-title"><?php the_title(); ?></h5>
                             <p class="card-text"><?php echo wp_kses_post(get_the_excerpt()); ?></p>
-                            <a href="<?php the_permalink(); ?>" class="btn readmore-btn">Read More</a>
+                            <a href="<?php the_permalink(); ?>" class="btn readmore-btn">Read More
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                                </svg>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -275,8 +271,6 @@ function custom_post_filter_shortcode()
 
 add_shortcode('custom_post_filter', 'custom_post_filter_shortcode');
 
-
-
 // Add AJAX actions to filter the post
 
 function inline_ajax_filter_script()
@@ -284,14 +278,16 @@ function inline_ajax_filter_script()
 ?>
     <script type="text/javascript">
         jQuery(function($) {
-            $('#filter-form').on('submit', function(e) {
-                e.preventDefault();
-
+            function ajaxFilterPosts(paged) {
                 var filter = $('#filter-form');
+                var data = filter.serialize() + '&action=filter_posts&afp_nonce=' + afp_vars.afp_nonce;
+                if (paged) {
+                    data += '&paged=' + paged;
+                }
                 $.ajax({
                     url: afp_vars.afp_ajax_url,
                     type: 'post',
-                    data: filter.serialize() + '&action=filter_posts&afp_nonce=' + afp_vars.afp_nonce,
+                    data: data,
                     beforeSend: function() {
                         $('#response').html('Loading...');
                     },
@@ -299,6 +295,17 @@ function inline_ajax_filter_script()
                         $('#response').html(response);
                     }
                 });
+            }
+
+            $('#filter-form').on('submit', function(e) {
+                e.preventDefault();
+                ajaxFilterPosts();
+            });
+
+            $(document).on('click', '.pagination a', function(e) {
+                e.preventDefault();
+                var paged = $(this).attr('href').split('paged=')[1];
+                ajaxFilterPosts(paged);
             });
         });
     </script>
